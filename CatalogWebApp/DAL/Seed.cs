@@ -2,20 +2,20 @@
 {
     public static class Seed
     {
-        public static List<CatalogModel> Data =>
-            new List<CatalogModel>()
+        public static List<ProductModel> Data =>
+            new List<ProductModel>()
             {
-                new CatalogModel()
+                new ProductModel()
                 {
                     Id = 1,
-                    Name = "IPhine"
+                    Name = "IPhone"
                 },
-                new CatalogModel()
+                new ProductModel()
                 {
                     Id = 2,
                     Name = "Samsung"
                 },
-                new CatalogModel()
+                new ProductModel()
                 {
                     Id = 3,
                     Name = "LG"

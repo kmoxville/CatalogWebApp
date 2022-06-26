@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CatalogWebApp.DAL.Models
 {
-    public class CatalogModel
+    public class ProductModel
     {
         public int Id { get; set; }
 
@@ -15,7 +15,7 @@ namespace CatalogWebApp.DAL.Models
         public int ImageId { get; set; }
 
         [Required]
-        public CatalogImageModel Image { get; set; } = default!;
+        public ProductImageModel Image { get; set; } = default!;
 
         [NotMapped]
         public IFormFile ImageFile { get; set; } = default!;

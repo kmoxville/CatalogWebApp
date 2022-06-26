@@ -15,12 +15,12 @@ namespace CatalogWebApp.DAL
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<CatalogModel>()
+            modelBuilder.Entity<ProductModel>()
                 .HasData(Seed.Data);
         }
 
-        public DbSet<CatalogModel> Catalogs { get; set; } = null!;
+        public DbSet<ProductModel> Catalogs { get; set; } = null!;
 
-        public DbSet<CatalogImageModel> CatalogImages { get; set; } = null!;
+        public DbSet<ProductImageModel> CatalogImages { get; set; } = null!;
     }
 }

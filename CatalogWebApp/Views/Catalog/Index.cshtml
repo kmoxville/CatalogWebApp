@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CatalogWebApp.DAL.Models.CatalogModel>
+﻿@model CatalogIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -19,7 +19,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Products) {
         <tr>
             <td>
                 <img src="@Url.Action("GetImage", new { id = item.ImageId })" alt="@item.Name" width=40 height=40/>
