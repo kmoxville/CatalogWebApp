@@ -1,30 +1,64 @@
 ﻿using MimeKit;
 using MailKit.Net.Smtp;
+using CatalogWebApp.Utils.Options;
+using Microsoft.Extensions.Options;
+using Polly.Retry;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
 
 namespace CatalogWebApp.Services.EmailService
 {
     public class EmailService : IEmailService
     {
+        private readonly EmailOptions _emailOptions;
+        private readonly AsyncRetryPolicy _retryPolicy;
+        private readonly ILogger<IEmailService> _logger;
+
+        public EmailService(IOptions<EmailOptions> emailOptions,
+            ILogger<IEmailService> logger)
+        {
+            _emailOptions = emailOptions.Value;
+            _logger = logger;
+
+            var delay = Backoff.DecorrelatedJitterBackoffV2(
+                medianFirstRetryDelay: TimeSpan.FromSeconds(_emailOptions.RetryPolicy.RetryTimeout), 
+                retryCount: _emailOptions.RetryPolicy.RetryCount);
+
+            _retryPolicy = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(
+                    sleepDurations: delay,
+                    onRetry: (exception, retryCount) =>
+                    {
+                        logger.LogError($"Oops, something very bad happened!\n" +
+                            $"Message:{exception.Message}\n" +
+                            $"on retry #{retryCount}");
+                    });
+        }
+
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var emailMessage = new MimeMessage();
-
-            emailMessage.From.Add(new MailboxAddress("Test", "asp2022gb@rodion-m.ru"));
-            emailMessage.To.Add(new MailboxAddress("", email));
-            emailMessage.Subject = subject;
-            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+            await _retryPolicy.ExecuteAsync(async () =>
             {
-                Text = message
-            };
+                // throw new Exception("test");
+                var emailMessage = new MimeMessage();
 
-            using (var client = new SmtpClient())
-            {
-                await client.ConnectAsync("smtp.beget.com", 25, false);
-                await client.AuthenticateAsync("asp2022gb@rodion-m.ru", "3drtLSa1");
-                await client.SendAsync(emailMessage);
+                emailMessage.From.Add(new MailboxAddress(_emailOptions.Name, _emailOptions.Address));
+                emailMessage.To.Add(new MailboxAddress("", email));
+                emailMessage.Subject = subject;
+                emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                {
+                    Text = message
+                };
 
-                await client.DisconnectAsync(true);
-            }
+                using (var client = new SmtpClient())
+                {
+                    await client.ConnectAsync(_emailOptions.Host, _emailOptions.Port, false);
+                    await client.AuthenticateAsync(_emailOptions.User, _emailOptions.Password);
+                    await client.SendAsync(emailMessage);
+
+                    await client.DisconnectAsync(true);
+                }
+            });
         }
     }
 }
