@@ -47,7 +47,7 @@ namespace CatalogWebApp.Services.CatalogService
             try
             {
                 await _emailService.SendEmailAsync(
-                    email: "alex.samylovskikh@gmail.com", //asp2022gb@rodion-m.ru
+                    email: "asp2022gb@rodion-m.ru",
                     message: $"Created new product {catalogModel.Name}",
                     subject: "New product");
             }
