@@ -19,5 +19,10 @@
         public RetryPolicyOptions RetryPolicy { get; set; } = null!;
     }
 
-    
+    public class NotificationEmailOptions
+    {
+        public const string Position = "NotificationEmail";
+
+        public string Address { get; set; } = String.Empty;
+    }
 }

@@ -1,6 +1,8 @@
 using CatalogWebApp.Services.CatalogService;
 using CatalogWebApp.Services.EmailService;
+using CatalogWebApp.Services.NotificationService;
 using CatalogWebApp.Utils.Options;
+using Quartz;
 using Serilog;
 using Serilog.Events;
 
@@ -21,8 +23,28 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 
+builder.Services.AddQuartz(q =>
+ {
+     var jobKey = new JobKey("LiveNotificationService");
+
+     q.UseMicrosoftDependencyInjectionJobFactory();
+
+     q.AddJob<NotificationService>(cfg => cfg.WithIdentity(jobKey));
+     q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("LiveNotificationService-trigger")
+        .WithSimpleSchedule(sch =>
+            sch.WithIntervalInMinutes(1)
+            .RepeatForever()));
+ });
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
 builder.Services.Configure<EmailOptions>(
     builder.Configuration.GetSection(EmailOptions.Position));
+
+builder.Services.Configure<NotificationEmailOptions>(
+    builder.Configuration.GetSection(NotificationEmailOptions.Position));
 
 var app = builder.Build();
 

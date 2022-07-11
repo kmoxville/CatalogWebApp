@@ -15,14 +15,14 @@ namespace CatalogWebApp.Controllers
 
         // GET: Catalog
         [Route("Products")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            return View(await _catalogService.IndexAsync());
+            return View(await _catalogService.IndexAsync(cancellationToken));
         }
 
-        public async Task<IActionResult> GetImage(int id)
+        public async Task<IActionResult> GetImage(int id, CancellationToken cancellationToken)
         {
-            var image = await _catalogService.GetImageAsync(id);
+            var image = await _catalogService.GetImageAsync(id, cancellationToken);
             if (image == null)
                 return NotFound();
 
@@ -30,9 +30,9 @@ namespace CatalogWebApp.Controllers
         }
 
         // GET: Catalog/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, CancellationToken cancellationToken)
         {
-            var details = await _catalogService.Details(id);
+            var details = await _catalogService.Details(id, cancellationToken);
 
             if (details == null)
             {
@@ -43,7 +43,7 @@ namespace CatalogWebApp.Controllers
         }
 
         // GET: Catalog/Create
-        public IActionResult Create()
+        public IActionResult Create(CancellationToken cancellationToken)
         {
             return View();
         }
@@ -51,16 +51,16 @@ namespace CatalogWebApp.Controllers
         // POST: Catalog/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CatalogViewModel catalogModel)
+        public async Task<IActionResult> Create(CatalogViewModel catalogModel, CancellationToken cancellationToken)
         {
-            await _catalogService.Create(catalogModel);
+            await _catalogService.Create(catalogModel, cancellationToken);
             return RedirectToAction(nameof(Index));
         }
 
         // GET: Catalog/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, CancellationToken cancellationToken)
         {
-            var details = await _catalogService.Details(id);
+            var details = await _catalogService.Details(id, cancellationToken);
 
             if (details == null)
             {
@@ -73,14 +73,14 @@ namespace CatalogWebApp.Controllers
         // POST: Catalog/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, CatalogViewModel catalogModel)
+        public async Task<IActionResult> Edit(int id, CatalogViewModel catalogModel, CancellationToken cancellationToken)
         {
             if (id != catalogModel.Id)
             {
                 return Redirect("/Home/Error");
             }
 
-            if (await _catalogService.Save(catalogModel))
+            if (await _catalogService.Save(catalogModel, cancellationToken))
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -89,18 +89,18 @@ namespace CatalogWebApp.Controllers
         }
 
         // GET: Catalog/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, CancellationToken cancellationToken)
         {
-            var catalogModel = await _catalogService.Details(id);
+            var catalogModel = await _catalogService.Details(id, cancellationToken);
             return View(catalogModel);
         }
 
         // POST: Catalog/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
         {
-            await _catalogService.Delete(id);
+            await _catalogService.Delete(id, cancellationToken);
             return RedirectToAction(nameof(Index));
         }
     }
