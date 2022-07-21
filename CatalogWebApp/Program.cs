@@ -1,3 +1,4 @@
+using CatalogWebApp.Middleware;
 using CatalogWebApp.Services.CatalogService;
 using CatalogWebApp.Services.EmailService;
 using CatalogWebApp.Services.NotificationService;
@@ -38,7 +39,13 @@ builder.Services.AddQuartz(q =>
             .RepeatForever()));
  });
 
+builder.Services.AddDetection();
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestBody 
+        | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponseBody;
+});
 
 builder.Services.Configure<EmailOptions>(
     builder.Configuration.GetSection(EmailOptions.Position));
@@ -56,6 +63,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseHttpLogging();
+//app.UseLogMiddleware();
+app.UseDetection();
+app.UseBrowserMiddleware();
 app.UseHttpsRedirection();
 app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 app.UseStaticFiles();

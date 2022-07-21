@@ -25,6 +25,7 @@
     <PackageReference Include="Quartz.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+    <PackageReference Include="Wangkanai.Detection" Version="5.3.0" />
   </ItemGroup>
 
 </Project>
