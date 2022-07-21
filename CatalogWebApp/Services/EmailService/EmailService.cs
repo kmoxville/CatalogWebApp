@@ -35,7 +35,7 @@ namespace CatalogWebApp.Services.EmailService
                     });
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string email, string subject, string message, CancellationToken cancellationToken = default)
         {
             await _retryPolicy.ExecuteAsync(async () =>
             {
@@ -52,9 +52,9 @@ namespace CatalogWebApp.Services.EmailService
 
                 using (var client = new SmtpClient())
                 {
-                    await client.ConnectAsync(_emailOptions.Host, _emailOptions.Port, false);
-                    await client.AuthenticateAsync(_emailOptions.User, _emailOptions.Password);
-                    await client.SendAsync(emailMessage);
+                    await client.ConnectAsync(_emailOptions.Host, _emailOptions.Port, false, cancellationToken);
+                    await client.AuthenticateAsync(_emailOptions.User, _emailOptions.Password, cancellationToken);
+                    await client.SendAsync(emailMessage, cancellationToken);
 
                     await client.DisconnectAsync(true);
                 }

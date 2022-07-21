@@ -17,7 +17,7 @@ namespace CatalogWebApp.Services.CatalogService
             _emailService = emailService;
         }
 
-        public async Task<bool> Create(CatalogViewModel catalogViewModel)
+        public async Task<bool> Create(CatalogViewModel catalogViewModel, CancellationToken cancellationToken)
         {
             var catalogModel = _mapper.Map<ProductModel>(catalogViewModel);
 
@@ -37,7 +37,7 @@ namespace CatalogWebApp.Services.CatalogService
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception)
             {
@@ -59,7 +59,7 @@ namespace CatalogWebApp.Services.CatalogService
             return true;
         }
 
-        public async Task<bool> Delete(int? id)
+        public async Task<bool> Delete(int? id, CancellationToken cancellationToken)
         {
             var catalogModel = await _context.Catalogs.FindAsync(id);
 
@@ -70,7 +70,7 @@ namespace CatalogWebApp.Services.CatalogService
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception)
             {
@@ -80,26 +80,26 @@ namespace CatalogWebApp.Services.CatalogService
             return true;
         }
 
-        public async Task<CatalogViewModel> Details(int? id)
+        public async Task<CatalogViewModel> Details(int? id, CancellationToken cancellationToken)
         {
-            return _mapper.Map<CatalogViewModel>(await _context.Catalogs.FirstOrDefaultAsync(x => x.Id == id));
+            return _mapper.Map<CatalogViewModel>(await _context.Catalogs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken));
         }
 
-        public async Task<byte[]?> GetImageAsync(int id)
+        public async Task<byte[]?> GetImageAsync(int id, CancellationToken cancellationToken)
         {
-            var image = await _context.CatalogImages.FirstOrDefaultAsync(x => x.Id == id);
+            var image = await _context.CatalogImages.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (image != null)
                 return image.Image;
             else
                 return null;
         }
 
-        public async Task<CatalogIndexViewModel> IndexAsync()
+        public async Task<CatalogIndexViewModel> IndexAsync(CancellationToken cancellationToken)
         {
-            return new CatalogIndexViewModel() { Products = await _context.Catalogs.ToListAsync() };
+            return new CatalogIndexViewModel() { Products = await _context.Catalogs.ToListAsync(cancellationToken) };
         }
 
-        public async Task<bool> Save(CatalogViewModel catalogViewModel)
+        public async Task<bool> Save(CatalogViewModel catalogViewModel, CancellationToken cancellationToken)
         {
             var catalogModel = _mapper.Map<ProductModel>(catalogViewModel);
 
@@ -118,7 +118,7 @@ namespace CatalogWebApp.Services.CatalogService
             try
             {
                 _context.Update(catalogModel);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {

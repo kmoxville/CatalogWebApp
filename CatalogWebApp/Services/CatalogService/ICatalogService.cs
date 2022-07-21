@@ -4,16 +4,16 @@ namespace CatalogWebApp.Services.CatalogService
 {
     public interface ICatalogService
     {
-        Task<CatalogIndexViewModel> IndexAsync();
+        Task<CatalogIndexViewModel> IndexAsync(CancellationToken cancellationToken);
 
-        Task<byte[]?> GetImageAsync(int id);
+        Task<byte[]?> GetImageAsync(int id, CancellationToken cancellationToken);
 
-        Task<CatalogViewModel> Details(int? id);
+        Task<CatalogViewModel> Details(int? id, CancellationToken cancellationToken);
 
-        Task<bool> Create(CatalogViewModel catalogModel);
+        Task<bool> Create(CatalogViewModel catalogModel, CancellationToken cancellationToken);
 
-        Task<bool> Save(CatalogViewModel catalogModel);
+        Task<bool> Save(CatalogViewModel catalogModel, CancellationToken cancellationToken);
 
-        Task<bool> Delete(int? id);
+        Task<bool> Delete(int? id, CancellationToken cancellationToken);
     }
 }

@@ -1,6 +1,10 @@
+using CatalogWebApp.Middleware;
 using CatalogWebApp.Services.CatalogService;
 using CatalogWebApp.Services.EmailService;
+using CatalogWebApp.Services.MetricsService;
+using CatalogWebApp.Services.NotificationService;
 using CatalogWebApp.Utils.Options;
+using Quartz;
 using Serilog;
 using Serilog.Events;
 
@@ -21,8 +25,36 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 
+builder.Services.AddQuartz(q =>
+ {
+     var jobKey = new JobKey("LiveNotificationService");
+
+     q.UseMicrosoftDependencyInjectionJobFactory();
+
+     q.AddJob<NotificationService>(cfg => cfg.WithIdentity(jobKey));
+     q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("LiveNotificationService-trigger")
+        .WithSimpleSchedule(sch =>
+            sch.WithIntervalInMinutes(1)
+            .RepeatForever()));
+ });
+
+builder.Services.AddDetection();
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestBody 
+        | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponseBody;
+});
+
 builder.Services.Configure<EmailOptions>(
     builder.Configuration.GetSection(EmailOptions.Position));
+
+builder.Services.Configure<NotificationEmailOptions>(
+    builder.Configuration.GetSection(NotificationEmailOptions.Position));
+
+builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 var app = builder.Build();
 
@@ -34,6 +66,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseHttpLogging();
+//app.UseLogMiddleware();
+app.UseDetection();
+app.UseBrowserMiddleware();
+app.UseMetricsMiddleware();
 app.UseHttpsRedirection();
 app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 app.UseStaticFiles();
