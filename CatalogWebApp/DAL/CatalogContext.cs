@@ -22,5 +22,7 @@ namespace CatalogWebApp.DAL
         public DbSet<ProductModel> Catalogs { get; set; } = null!;
 
         public DbSet<ProductImageModel> CatalogImages { get; set; } = null!;
+
+        public DbSet<MetricModel> Metrics { get; set; } = null!;
     }
 }

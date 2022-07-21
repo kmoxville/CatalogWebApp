@@ -1,6 +1,7 @@
 using CatalogWebApp.Middleware;
 using CatalogWebApp.Services.CatalogService;
 using CatalogWebApp.Services.EmailService;
+using CatalogWebApp.Services.MetricsService;
 using CatalogWebApp.Services.NotificationService;
 using CatalogWebApp.Utils.Options;
 using Quartz;
@@ -53,6 +54,8 @@ builder.Services.Configure<EmailOptions>(
 builder.Services.Configure<NotificationEmailOptions>(
     builder.Configuration.GetSection(NotificationEmailOptions.Position));
 
+builder.Services.AddScoped<IMetricsService, MetricsService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -67,6 +70,7 @@ app.UseHttpLogging();
 //app.UseLogMiddleware();
 app.UseDetection();
 app.UseBrowserMiddleware();
+app.UseMetricsMiddleware();
 app.UseHttpsRedirection();
 app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 app.UseStaticFiles();
